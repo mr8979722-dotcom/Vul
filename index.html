@@ -1,0 +1,634 @@
+
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আত্মনিয়ন্ত্রণ ও আত্মশুদ্ধি - Self Control Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Hind Siliguri for beautiful Bengali typography) -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emeraldGlow: '#059669',
+                        goldAccent: '#d97706',
+                        darkCard: '#1f2937',
+                        darkBg: '#111827'
+                    },
+                    fontFamily: {
+                        sans: ['Hind Siliguri', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #0d1117;
+            color: #f3f4f6;
+        }
+        /* Custom Glowing & Visual Frame Effects */
+        .frame-level-1 { border: 3px solid #6b7280; box-shadow: 0 0 10px rgba(107, 114, 128, 0.3); }
+        .frame-level-2 { border: 3px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .frame-level-3 { border: 3px solid #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+        .frame-level-4 { border: 3px solid #8b5cf6; box-shadow: 0 0 25px rgba(139, 92, 246, 0.7); }
+        .frame-level-5 { border: 3px solid #f59e0b; box-shadow: 0 0 30px rgba(245, 158, 11, 0.8); }
+        .frame-level-6 { border: 4px solid #ec4899; box-shadow: 0 0 35px rgba(236, 72, 153, 0.9); }
+        .frame-level-7 { border: 4px solid #eab308; box-shadow: 0 0 40px rgba(234, 179, 8, 1); animation: pulseGlow 2s infinite alternate; }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.6); }
+            100% { box-shadow: 0 0 40px rgba(234, 179, 8, 1); }
+        }
+
+        /* Breathing Circle Animation */
+        .breath-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,0.8) 0%, rgba(5,150,105,0.2) 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            transition: transform 4s ease-in-out;
+        }
+        .expand {
+            transform: scale(1.6);
+        }
+        .shrink {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-16 md:pb-0">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <i class="fa-solid fa-kaaba text-amber-500 text-2xl"></i>
+                <h1 class="font-bold text-xl text-white tracking-wide">আত্মশুদ্ধি <span class="text-xs text-amber-400 font-normal border border-amber-500/40 px-2 py-0.5 rounded-full">v2.0</span></h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openTab('emergency')" class="bg-red-600 hover:bg-red-700 text-white font-semibold text-xs md:text-sm px-3 py-1.5 rounded-full flex items-center gap-1.5 animate-pulse shadow-lg shadow-red-900/50">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>ইমার্জেন্সি বাটন</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Daily Islamic Banner -->
+    <section class="max-w-4xl mx-auto w-full px-4 pt-4">
+        <div class="bg-gradient-to-r from-emerald-900/60 via-gray-900 to-amber-900/60 border border-emerald-600/30 rounded-2xl p-4 shadow-xl relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 text-emerald-500/10 text-8xl pointer-events-none">
+                <i class="fa-solid fa-quran"></i>
+            </div>
+            <div class="flex items-start gap-3 relative z-10">
+                <div class="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl mt-1 shrink-0">
+                    <i class="fa-solid fa-quote-left text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between items-center mb-1">
+                        <span id="quote-source" class="text-xs font-bold uppercase tracking-wider text-amber-400">দৈনিক হেদায়েত</span>
+                        <button onclick="getRandomQuote()" class="text-xs text-gray-400 hover:text-white flex items-center gap-1 transition">
+                            <i class="fa-solid fa-rotate"></i> পরিবর্তন
+                        </button>
+                    </div>
+                    <p id="quote-text" class="text-sm md:text-base text-gray-200 font-medium leading-relaxed">
+                        "বলুন! মুমিনদেরকে বলুন যেন তারা তাদের দৃষ্টিকে সংযত রাখে এবং তাদের লজ্জাস্থানের হেফাজত করে। এটিই তাদের জন্য অতি পবিত্র।" (সূরা আন-নূর: ৩০)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-1">
+        
+        <!-- Tab Navigation Buttons -->
+        <div class="flex justify-center bg-gray-900/90 p-1.5 rounded-xl border border-gray-800 mb-6 gap-1">
+            <button id="tab-btn-home" onclick="openTab('home')" class="flex-1 py-2 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white shadow">
+                <i class="fa-solid fa-house mr-1"></i> ড্যাশবোর্ড
+            </button>
+            <button id="tab-btn-badges" onclick="openTab('badges')" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-award mr-1"></i> লেভেল ও ব্যাজ
+            </button>
+            <button id="tab-btn-settings" onclick="openTab('settings')" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-gear mr-1"></i> সেটিং
+            </button>
+        </div>
+
+        <!-- ================= HOME TAB ================= -->
+        <div id="tab-home" class="space-y-6">
+            
+            <!-- Profile Frame Card -->
+            <div class="bg-gray-900/80 rounded-2xl p-6 border border-gray-800 text-center relative overflow-hidden shadow-2xl">
+                <!-- Glowing background dynamic effect -->
+                <div id="profile-glow" class="absolute inset-0 bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+
+                <!-- Avatar Frame Container -->
+                <div class="relative inline-block my-2">
+                    <div id="user-avatar-frame" class="w-28 h-28 md:w-32 md:h-32 rounded-full mx-auto flex items-center justify-center bg-gray-800 frame-level-1 transition-all duration-500">
+                        <i id="user-avatar-icon" class="fa-solid fa-user-shield text-4xl md:text-5xl text-gray-400"></i>
+                    </div>
+                    <span id="level-badge-pill" class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gray-800 border border-gray-700 text-amber-400 font-bold text-xs px-3 py-1 rounded-full shadow-md whitespace-nowrap">
+                        লেভেল ১: প্রাথমিক পথচলা
+                    </span>
+                </div>
+
+                <h2 id="user-rank-title" class="text-xl md:text-2xl font-bold text-white mt-3">নতুন বীর (Beginner)</h2>
+                <p id="rank-description" class="text-xs md:text-sm text-gray-400 mt-1 max-w-md mx-auto">
+                    আপনি একটি মহৎ যাত্রার সূচনা করেছেন। নফসের বিরুদ্ধে এই যুদ্ধ প্রতিদিন একটু একটু করে জিততে হবে।
+                </p>
+
+                <!-- Dynamic Clean Counter -->
+                <div class="mt-6 pt-6 border-t border-gray-800/80">
+                    <p class="text-xs uppercase tracking-widest text-emerald-400 font-semibold mb-3">পবিত্রতার সময়কাল (Clean Streak)</p>
+                    <div class="grid grid-cols-4 gap-2 md:gap-4 max-w-md mx-auto">
+                        <div class="bg-gray-800/60 border border-gray-700/50 p-2 md:p-3 rounded-xl">
+                            <span id="cnt-days" class="block text-2xl md:text-4xl font-extrabold text-white">0</span>
+                            <span class="text-[10px] md:text-xs text-gray-400">দিন</span>
+                        </div>
+                        <div class="bg-gray-800/60 border border-gray-700/50 p-2 md:p-3 rounded-xl">
+                            <span id="cnt-hours" class="block text-2xl md:text-4xl font-extrabold text-white">0</span>
+                            <span class="text-[10px] md:text-xs text-gray-400">ঘণ্টা</span>
+                        </div>
+                        <div class="bg-gray-800/60 border border-gray-700/50 p-2 md:p-3 rounded-xl">
+                            <span id="cnt-minutes" class="block text-2xl md:text-4xl font-extrabold text-white">0</span>
+                            <span class="text-[10px] md:text-xs text-gray-400">মিনিট</span>
+                        </div>
+                        <div class="bg-gray-800/60 border border-gray-700/50 p-2 md:p-3 rounded-xl">
+                            <span id="cnt-seconds" class="block text-2xl md:text-4xl font-extrabold text-amber-400">0</span>
+                            <span class="text-[10px] md:text-xs text-gray-400">সেকেন্ড</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level Progress Bar -->
+                <div class="mt-6 max-w-md mx-auto">
+                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>পরবর্তী লেভেল অগ্রগতি</span>
+                        <span id="level-progress-text">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden border border-gray-700">
+                        <div id="level-progress-bar" class="bg-gradient-to-r from-emerald-500 to-amber-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motivational Benefit Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-4 flex items-start gap-3">
+                    <div class="p-2.5 bg-blue-500/10 text-blue-400 rounded-lg">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-sm text-gray-200">মানসিক পরিবর্তন</h3>
+                        <p class="text-xs text-gray-400 mt-1">মনোযোগ বৃদ্ধি পাবে, বিষণ্ণতা কমবে এবং মস্তিষ্কের ডোপামিন ব্যালেন্স আবার স্বাভাবিক হতে শুরু করবে।</p>
+                    </div>
+                </div>
+                <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-4 flex items-start gap-3">
+                    <div class="p-2.5 bg-amber-500/10 text-amber-400 rounded-lg">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-sm text-gray-200">দৈহিক ও আত্মিক শক্তি</h3>
+                        <p class="text-xs text-gray-400 mt-1">চেহারায় নূর ও উজ্জ্বলতা বৃদ্ধি পাবে, সারাদিন অলসতা কেটে প্রাণবন্ত শক্তি অনুভব করবেন।</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= BADGES & TIERS TAB ================= -->
+        <div id="tab-badges" class="space-y-6 hidden">
+            <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5">
+                <h2 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400"></i> আপনার আনলকড র‍্যাংক ও প্রোফাইল ফ্রেম
+                </h2>
+                <p class="text-xs text-gray-400 mb-6">যত বেশি দিন আপনি পবিত্র থাকবেন, তত নতুন মর্যাদা ও অনন্য ভিজ্যুয়াল ব্যাজ আনলক হবে।</p>
+
+                <div id="milestones-container" class="space-y-4">
+                    <!-- Dynamic rendering of badges -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SETTINGS TAB ================= -->
+        <div id="tab-settings" class="space-y-6 hidden">
+            <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5">
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-emerald-400"></i> সময় ও অগ্রগতি সেট করুন
+                </h2>
+
+                <form id="streak-form" onsubmit="saveStartDate(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">কবে থেকে মুক্ত আছেন? (তারিখ ও সময় নির্ধারণ করুন)</label>
+                        <input type="datetime-local" id="input-start-date" required class="w-full bg-gray-800 border border-gray-700 text-white rounded-xl p-3 text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-lg text-sm">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> তথ্য সংরক্ষণ করুন
+                    </button>
+                </form>
+
+                <hr class="my-6 border-gray-800">
+
+                <div class="bg-red-950/30 border border-red-900/50 rounded-xl p-4">
+                    <h3 class="text-sm font-bold text-red-400 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i> ভুল হয়ে গেছে? (Relapse Reset)
+                    </h3>
+                    <p class="text-xs text-gray-400 mb-3">হতাশ হবেন না! তওবা করে আবার নতুন করে শুরু করুন। অতীতের ভুল থেকে শিক্ষা নিয়ে সামনে বাড়াই মূল লক্ষ্য।</p>
+                    <button onclick="triggerRelapseModal()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                        স্ট্রিক রিকভারি / রিসেট করুন
+                    </button>
+                </div>
+            </div>
+
+            <!-- Relapse History Log -->
+            <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5">
+                <h3 class="text-md font-bold text-white mb-3">অনুশোচনা ও শিক্ষার জার্নাল</h3>
+                <div id="relapse-logs" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    <p class="text-xs text-gray-500 italic">এখনও কোনো রিল্যাপস লগ জমা হয়নি। মাশাআল্লাহ!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= EMERGENCY / PANIC TAB ================= -->
+        <div id="tab-emergency" class="space-y-6 hidden">
+            <div class="bg-red-950/40 border border-red-800/80 rounded-2xl p-6 text-center relative overflow-hidden">
+                <div class="inline-block p-4 bg-red-600/20 rounded-full text-red-500 mb-3 animate-bounce">
+                    <i class="fa-solid fa-shield-cat text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white">তীব্র ইচ্ছা জাগছে? একটু থামুন!</h2>
+                <p class="text-xs md:text-sm text-gray-300 mt-2 max-w-lg mx-auto">
+                    শয়তান আপনাকে এই কয়েক মিনিটের ভুয়া সুখে ফেলার চেষ্টা করছে। এটি পার হয়ে গেলেই আপনি জয়ী হবেন!
+                </p>
+
+                <!-- Breathing Exercise -->
+                <div class="my-8 bg-gray-900/80 border border-gray-800 p-6 rounded-2xl">
+                    <h3 class="text-sm font-bold text-emerald-400 mb-2">গভীর শ্বাস চর্চা (Grounding Breathing)</h3>
+                    <p id="breath-instruction" class="text-xs text-gray-400 mb-4">নিচে বাটন চেপে শ্বাসের তালে মন শান্ত করুন</p>
+                    
+                    <div id="breath-box" class="breath-circle shrink">
+                        <span id="breath-status" class="text-white font-bold text-sm">শুরু করুন</span>
+                    </div>
+
+                    <button id="breath-btn" onclick="toggleBreathing()" class="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-2.5 rounded-full transition shadow-lg">
+                        শ্বাস চর্চা শুরু করুন
+                    </button>
+                </div>
+
+                <!-- Instant Action Tips -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
+                    <div class="bg-gray-900/90 border border-gray-800 p-3 rounded-xl text-xs text-gray-300 flex items-start gap-2">
+                        <i class="fa-solid fa-faucet-drip text-blue-400 mt-1"></i>
+                        <span><strong>ঠান্ডা পানি দিয়ে অজু করুন:</strong> অজু রাগ ও কামনা শীতল করে দেয়।</span>
+                    </div>
+                    <div class="bg-gray-900/90 border border-gray-800 p-3 rounded-xl text-xs text-gray-300 flex items-start gap-2">
+                        <i class="fa-solid fa-person-walking text-amber-400 mt-1"></i>
+                        <span><strong>রুম ত্যাগ করুন:</strong> একা বা অন্ধকার ঘরে থাকবেন না। এখনই মানুষের মাঝে যান।</span>
+                    </div>
+                    <div class="bg-gray-900/90 border border-gray-800 p-3 rounded-xl text-xs text-gray-300 flex items-start gap-2">
+                        <i class="fa-solid fa-[#000] fa-child-reaching text-emerald-400 mt-1"></i>
+                        <span><strong>১০টি পুশ-আপ দিন:</strong> শারিরীক কসরত মনকে অন্য ধ্যানে নিয়ে যাবে।</span>
+                    </div>
+                    <div class="bg-gray-900/90 border border-gray-800 p-3 rounded-xl text-xs text-gray-300 flex items-start gap-2">
+                        <i class="fa-solid fa-hands-praying text-purple-400 mt-1"></i>
+                        <span><strong>আস্তাগফিরুল্লাহ পড়ুন:</strong> বেশি বেশি "আস্তাগফিরুল্লাহ" জিকির করুন।</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-950 border-t border-gray-800 py-4 text-center text-xs text-gray-500">
+        <p>আত্মনিয়ন্ত্রণ ও আত্মশুদ্ধি অ্যাপ • আপনার অগ্রগতি সম্পূর্ণ আপনার ব্রাউজারে সংরক্ষিত।</p>
+    </footer>
+
+    <!-- Relapse Modal -->
+    <div id="relapse-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full p-6 space-y-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> রিল্যাপসের কারণ লিখুন
+            </h3>
+            <p class="text-xs text-gray-400">
+                কী ভুলের কারণে বা কোন পরিস্থিতিতে নিয়ন্ত্রণ হারিয়েছিলেন? তা নোট করে রাখলে ভবিষ্যতে সতর্ক হওয়া সহজ হবে।
+            </p>
+            <textarea id="relapse-reason" rows="3" class="w-full bg-gray-800 border border-gray-700 text-white rounded-xl p-3 text-xs focus:outline-none focus:border-red-500" placeholder="যেমন: রাতে একাকী মোবাইল ব্যবহার করছিলাম..."></textarea>
+            
+            <div class="flex gap-2 justify-end">
+                <button onclick="closeRelapseModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs font-semibold">বাতিল</button>
+                <button onclick="confirmResetStreak()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold">রিসেট নিশ্চিত করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Toast Message -->
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-4 py-2 rounded-full text-xs shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+        বার্তা
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Islamic Quotes & Verses Dataset (Islamic guidance on self-control, lowering gaze, and purity)
+        const islamicQuotes = [
+            { quote: "বলুন! মুমিনদেরকে বলুন যেন তারা তাদের দৃষ্টিকে সংযত রাখে এবং তাদের লজ্জাস্থানের হেফাজত করে। এটিই তাদের জন্য অতি পবিত্র।", source: "সূরা আন-নূর: ৩০" },
+            { quote: "যে ব্যক্তি আল্লাহর ভয়ে কোনো নিষিদ্ধ কাজ ছেড়ে দেয়, আল্লাহ তাকে তার চেয়েও উত্তম কিছু দান করেন।", source: "হাদিস - মুসনাদে আহমাদ" },
+            { quote: "নিশ্চয়ই কান, চোখ ও হৃদয়—এদের প্রতিটির ব্যাপারে কিয়ামতের দিন জবাবদিহি করতে হবে।", source: "সূরা বনী ইসরাঈল: ৩৬" },
+            { quote: "যে লোক নিজের জিভ ও লজ্জাস্থানের নিশ্চয়তা দেবে, আমি তার জন্য জান্নাতের নিশ্চয়তা দেব।", source: "সহীহ বুখারী: ৬৪৭৪" },
+            { quote: "ধৈর্য এবং সালাতের মাধ্যমে সাহায্য প্রার্থনা করো। নিশ্চয়ই আল্লাহ ধৈর্যশীলদের সাথে আছেন।", source: "সূরা আল-বাকারা: ১৫৩" },
+            { quote: "মুমিন তো তারাই, যাদের অন্তর আল্লাহর জিকিরে প্রশান্তি লাভ করে। জেনে রাখ, আল্লাহর জিকির দ্বারাই অন্তরসমূহ শান্ত হয়।", source: "সূরা আর-রদ: ২৮" },
+            { quote: "চোখের জিনা হলো কুদৃষ্টি দেওয়া, আর হাতের জিনা হলো অন্যায়ভাবে স্পর্শ করা বা অন্যায় কাজে ব্যবহার করা।", source: "সহীহ মুসলিম: ৬৬৩৮" }
+        ];
+
+        // Level & Frame Progression System
+        const tiers = [
+            { day: 0, title: "নতুন বীর (Beginner)", level: 1, frameClass: "frame-level-1", icon: "fa-user-shield", color: "#6b7280", desc: "আপনি আত্মনিয়ন্ত্রণের প্রথম পদক্ষেপ নিয়েছেন।" },
+            { day: 3, title: "ধৈর্যশীল (Iron Will)", level: 2, frameClass: "frame-level-2", icon: "fa-shield-halved", color: "#3b82f6", desc: "৩ দিন অতিক্রান্ত! মস্তিষ্কের ডোপামিন রিসেপ্টর স্বাভাবিক হতে শুরু করেছে।" },
+            { day: 7, title: "আত্মজয়ী (Silver Soul)", level: 3, frameClass: "frame-level-3", icon: "fa-gem", color: "#10b981", desc: "১ সপ্তাহ সফল! আপনার মানসিক স্বচ্ছতা ও মনোযোগ বাড়ছে।" },
+            { day: 14, title: "নফস বিজয়ী (Golden Spirit)", level: 4, frameClass: "frame-level-4", icon: "fa-crown", color: "#8b5cf6", desc: "২ সপ্তাহ অতিক্রম! চেহারায় নূর ও নতুন শক্তির আগমন ঘটছে।" },
+            { day: 30, title: "সংযম গুরু (Master of Self-Control)", level: 5, frameClass: "frame-level-5", icon: "fa-dragon", color: "#f59e0b", desc: "১ মাস পূর্ণ! আপনি কুপ্রবৃত্তির শৃঙ্খল ভেঙে ফেলার দ্বারপ্রান্তে।" },
+            { day: 60, title: "পবিত্র আত্মা (Diamond Pure)", level: 6, frameClass: "frame-level-6", icon: "fa-meteor", color: "#ec4899", desc: "২ মাস! আপনি একজন সম্পূর্ণ মানসিক ও আত্মিকভাবে দৃঢ় মানুষ।" },
+            { day: 90, title: "মহাজয়ী বীর (Legendary Reformer)", level: 7, frameClass: "frame-level-7", icon: "fa-kaaba", color: "#eab308", desc: "৯০ দিন! অবিশ্বাস্য অর্জন। আপনি নিজের জীবনের পূর্ণ নিয়ন্ত্রণ নিজের হাতে নিয়েছেন!" }
+        ];
+
+        // Initial Data Load
+        let streakStartDate = localStorage.getItem('nofap_start_date');
+        let relapseHistory = JSON.parse(localStorage.getItem('nofap_relapse_logs')) || [];
+
+        if (!streakStartDate) {
+            streakStartDate = new Date().toISOString();
+            localStorage.setItem('nofap_start_date', streakStartDate);
+        }
+
+        // Initialize UI
+        window.onload = function() {
+            initDatePicker();
+            updateTimer();
+            setInterval(updateTimer, 1000);
+            getRandomQuote();
+            renderMilestones();
+            renderLogs();
+        };
+
+        // Format Date Picker Default
+        function initDatePicker() {
+            const dateObj = new Date(streakStartDate);
+            // Format to local ISO for input
+            const localIso = new Date(dateObj.getTime() - (dateObj.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+            document.getElementById('input-start-date').value = localIso;
+        }
+
+        // Update Counter and Level Status
+        function updateTimer() {
+            const start = new Date(streakStartDate).getTime();
+            const now = new Date().getTime();
+            const diff = now - start;
+
+            if (diff < 0) {
+                // Future date edge case
+                document.getElementById('cnt-days').innerText = "0";
+                document.getElementById('cnt-hours').innerText = "0";
+                document.getElementById('cnt-minutes').innerText = "0";
+                document.getElementById('cnt-seconds').innerText = "0";
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('cnt-days').innerText = days;
+            document.getElementById('cnt-hours').innerText = hours;
+            document.getElementById('cnt-minutes').innerText = minutes;
+            document.getElementById('cnt-seconds').innerText = seconds;
+
+            updateUserLevel(days);
+        }
+
+        // Calculate and Update Current Level / Frame
+        function updateUserLevel(days) {
+            let currentTier = tiers[0];
+            let nextTier = tiers[1];
+
+            for (let i = tiers.length - 1; i >= 0; i--) {
+                if (days >= tiers[i].day) {
+                    currentTier = tiers[i];
+                    nextTier = tiers[i + 1] || tiers[i];
+                    break;
+                }
+            }
+
+            // Update UI elements
+            document.getElementById('user-rank-title').innerText = currentTier.title;
+            document.getElementById('rank-description').innerText = currentTier.desc;
+            document.getElementById('level-badge-pill').innerText = `লেভেল ${currentTier.level}: ${currentTier.title}`;
+            
+            // Avatar & Frame Class
+            const avatarFrame = document.getElementById('user-avatar-frame');
+            avatarFrame.className = `w-28 h-28 md:w-32 md:h-32 rounded-full mx-auto flex items-center justify-center bg-gray-800 transition-all duration-500 ${currentTier.frameClass}`;
+            
+            const avatarIcon = document.getElementById('user-avatar-icon');
+            avatarIcon.className = `fa-solid ${currentTier.icon} text-4xl md:text-5xl`;
+            avatarIcon.style.color = currentTier.color;
+
+            // Progress bar to next level
+            let progressPercent = 100;
+            if (nextTier !== currentTier) {
+                const totalDaysForLevel = nextTier.day - currentTier.day;
+                const daysAchieved = days - currentTier.day;
+                progressPercent = Math.min(100, Math.floor((daysAchieved / totalDaysForLevel) * 100));
+            }
+
+            document.getElementById('level-progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('level-progress-text').innerText = `${progressPercent}%`;
+        }
+
+        // Render Badges & Milestones List
+        function renderMilestones() {
+            const container = document.getElementById('milestones-container');
+            const start = new Date(streakStartDate).getTime();
+            const days = Math.floor((new Date().getTime() - start) / (1000 * 60 * 60 * 24));
+
+            container.innerHTML = tiers.map(tier => {
+                const isUnlocked = days >= tier.day;
+                return `
+                    <div class="p-4 rounded-xl border flex items-center justify-between gap-4 transition ${isUnlocked ? 'bg-gray-800/80 border-amber-500/40' : 'bg-gray-900/40 border-gray-800 opacity-60'}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center ${tier.frameClass} bg-gray-900 shrink-0">
+                                <i class="fa-solid ${tier.icon} text-xl" style="color: ${tier.color}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                                    ${tier.title}
+                                    ${isUnlocked ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">আনলকড</span>' : `<span class="text-[10px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full">${tier.day} দিন</span>`}
+                                </h4>
+                                <p class="text-xs text-gray-400 mt-0.5">${tier.desc}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <i class="fa-solid ${isUnlocked ? 'fa-circle-check text-emerald-400' : 'fa-lock text-gray-600'} text-xl"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Tab Switcher
+        function openTab(tabName) {
+            ['home', 'badges', 'settings', 'emergency'].forEach(tab => {
+                document.getElementById(`tab-${tab}`).classList.add('hidden');
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            // Button highlights
+            const tabBtns = ['home', 'badges', 'settings'];
+            tabBtns.forEach(btn => {
+                const btnEl = document.getElementById(`tab-btn-${btn}`);
+                if (btnEl) {
+                    if (btn === tabName) {
+                        btnEl.className = "flex-1 py-2 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white shadow";
+                    } else {
+                        btnEl.className = "flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 hover:text-white transition";
+                    }
+                }
+            });
+
+            if (tabName === 'badges') {
+                renderMilestones();
+            }
+        }
+
+        // Get Random Islamic Quote
+        function getRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * islamicQuotes.length);
+            const q = islamicQuotes[randomIndex];
+            document.getElementById('quote-text').innerText = `"${q.quote}"`;
+            document.getElementById('quote-source').innerText = q.source;
+        }
+
+        // Save Custom Start Date
+        function saveStartDate(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('input-start-date').value;
+            if (inputVal) {
+                streakStartDate = new Date(inputVal).toISOString();
+                localStorage.setItem('nofap_start_date', streakStartDate);
+                showToast("তারিখ সফলভাবে আপডেট করা হয়েছে!");
+                updateTimer();
+                openTab('home');
+            }
+        }
+
+        // Relapse Modal Handlers
+        function triggerRelapseModal() {
+            document.getElementById('relapse-modal').classList.remove('hidden');
+        }
+
+        function closeRelapseModal() {
+            document.getElementById('relapse-modal').classList.add('hidden');
+        }
+
+        function confirmResetStreak() {
+            const reason = document.getElementById('relapse-reason').value || "কোনো কারণ উল্লেখ করা হয়নি";
+            const nowIso = new Date().toISOString();
+
+            // Save log
+            relapseHistory.unshift({
+                date: new Date().toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                reason: reason
+            });
+            localStorage.setItem('nofap_relapse_logs', JSON.stringify(relapseHistory));
+
+            // Reset start date to now
+            streakStartDate = nowIso;
+            localStorage.setItem('nofap_start_date', streakStartDate);
+
+            document.getElementById('relapse-reason').value = '';
+            closeRelapseModal();
+            renderLogs();
+            initDatePicker();
+            updateTimer();
+            showToast("স্ট্রিক রিসেট করা হয়েছে। আল্লাহ সহজ করুন!");
+            openTab('home');
+        }
+
+        // Render Relapse Logs
+        function renderLogs() {
+            const container = document.getElementById('relapse-logs');
+            if (relapseHistory.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 italic">এখনও কোনো রিল্যাপস লগ জমা হয়নি। মাশাআল্লাহ!</p>`;
+                return;
+            }
+
+            container.innerHTML = relapseHistory.map(log => `
+                <div class="p-2.5 bg-gray-800/50 border border-gray-700/50 rounded-lg text-xs">
+                    <span class="text-amber-400 font-bold block mb-0.5">${log.date}</span>
+                    <p class="text-gray-300">${log.reason}</p>
+                </div>
+            `).join('');
+        }
+
+        // Breathing Exercise Animation Toggle
+        let breathInterval = null;
+        let isBreathing = false;
+
+        function toggleBreathing() {
+            const box = document.getElementById('breath-box');
+            const status = document.getElementById('breath-status');
+            const btn = document.getElementById('breath-btn');
+
+            if (!isBreathing) {
+                isBreathing = true;
+                btn.innerText = "চর্চা বন্ধ করুন";
+                status.innerText = "শ্বাস নিন...";
+                box.classList.add('expand');
+
+                let step = 0; // 0: inhale, 1: hold, 2: exhale
+                breathInterval = setInterval(() => {
+                    step = (step + 1) % 3;
+                    if (step === 0) {
+                        status.innerText = "শ্বাস নিন...";
+                        box.className = "breath-circle expand";
+                    } else if (step === 1) {
+                        status.innerText = "ধরে রাখুন";
+                    } else {
+                        status.innerText = "শ্বাস ছাড়ুন...";
+                        box.className = "breath-circle shrink";
+                    }
+                }, 4000);
+            } else {
+                clearInterval(breathInterval);
+                isBreathing = false;
+                btn.innerText = "শ্বাস চর্চা শুরু করুন";
+                status.innerText = "শুরু করুন";
+                box.className = "breath-circle shrink";
+            }
+        }
+
+        // Show Notification Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+```
